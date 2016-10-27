@@ -146,6 +146,7 @@ def addAnalyze(process, isData=False, sample=''):
         TrackAssociatorParameterBlock,
         srcJets = cms.InputTag("jetFilter", "selectedJets"),
         isData = cms.untracked.bool(False),
+        idbg = cms.untracked.int32(1),
         vertexreco = cms.PSet(
             primcut = cms.double( 3.0 ),
             seccut = cms.double( 5.0 ),
