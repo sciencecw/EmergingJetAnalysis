@@ -320,6 +320,25 @@ EmJetAnalyzer::~EmJetAnalyzer()
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 // member functions
 //
@@ -503,6 +522,12 @@ EmJetAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   avrVertices_ = avr.vertices(tracks_for_vertexing);
 
 
+  // Kak: Jet prepared
+
+
+
+
+
   if(idbg_>0)  std::cout<<"    get JET quantities"<<std::endl;
   // Calculate Jet-level quantities and fill into jet_ :JETLEVEL:
   // Retrieve selectedJets
@@ -600,6 +625,10 @@ EmJetAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       prepareJetTrack(*itk, jet_, track_, 1, icnttrk); // source = 1 for generalTracks :TRACKSOURCE:
       fillJetTrack(*itk, jet_, track_);
     }
+
+
+
+
 
     // Per-jet vertex reconstruction
     {
@@ -712,6 +741,8 @@ EmJetAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
+
+  // Kak: Event summary printout
   if (pfjet_alphazero!=0 || pfjet_alphaneg!=0 || calojet_alphazero!=0 || calojet_alphaneg!=0) {
     std::cout << "Event summary:";
     OUTPUT(event_.run);
@@ -737,17 +768,32 @@ EmJetAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Write OutputTree to TTree
   tree_->Fill();
 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example",pIn);
-#endif
+  #ifdef THIS_IS_AN_EVENT_EXAMPLE
+    Handle<ExampleData> pIn;
+    iEvent.getByLabel("example",pIn);
+  #endif
 
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
-  return true;
+  #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+    ESHandle<SetupData> pSetup;
+    iSetup.get<SetupRecord>().get(pSetup);
+  #endif
+    return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void
