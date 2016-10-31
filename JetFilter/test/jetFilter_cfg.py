@@ -83,8 +83,24 @@ process.maxEvents = cms.untracked.PSet(
 #   destinations = cms.untracked.vstring('cout',),
 #   cout         = cms.untracked.PSet(threshold = cms.untracked.string('ERROR'))
 #)
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MessageLogger.cerr.default.limit = 100
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('JetFilter'),
+    debugModules = cms.untracked.vstring('jetFilter'),
+    cout         = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
+        # DEBUG = cms.untracked.int32(0),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0),
+        ),
+    )
+)
+# process.MessageLogger.cout.INFO.limit = 0
+# process.MessageLogger.cerr.threshold = "DEBUG"
+# process.MessageLogger.categories.append('JetFilter')
+
+# process.MessageLogger.cerr.FwkReport.reportEvery = 100
+# process.MessageLogger.cerr.default.limit = 100
 #process.options.wantSummary = False
 
 ############################################################
