@@ -43,7 +43,7 @@ print options.steps
 
 from EmergingJetAnalysis.Configuration.emjetTools import *
 
-process = cms.Process('HAHAHA')
+process = cms.Process('aetaPlot')
 if 'skim' in options.steps and len(options.steps)==1:
     # If only running skim, add AOD/AODSIM and jetFilter/wJetFilter to output
     process.setName('SKIM')
@@ -112,7 +112,9 @@ testingStep = addTesting(process, options.data, options.sample)
 
 process.p = cms.Path( skimStep * testingStep * analyzeStep )
 
-if 'skim' in options.steps and len(options.steps)==1:
+print "options.steps: ",options.steps
+#if 'skim' in options.steps and len(options.steps)==1:
+if True:
     # If only running skim, add AOD/AODSIM and jetFilter/wJetFilter to output
     print ''
     print '####################'
@@ -155,12 +157,14 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.source = cms.Source("PoolSource",
     # eventsToProcess = cms.untracked.VEventRange("1:36:3523-1:36:3523"),
     fileNames = cms.untracked.vstring(
-	'file:/home/kakw/CMSSW_7_6_3/src/EmergingJetAnalysis/mc/2016-09-12-HT2000.root'
+	#'file:/home/kakw/CMSSW_7_6_3/src/EmergingJetAnalysis/2016-09-12-HT2000.root'
+	'file:/mnt/hadoop/cms/store/user/kawong/EmergingJets/Analysis-20161116-Kak/QCD_HT1000to1500/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Analysis-20161116-Kak/161116_230808/0000/jetscan_1.root'
+	#'file:/mnt/hadoop/cms/store/user/kawong/EmergingJets/Analysis-20161031-Kak/QCD_HT1000to1500/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/Analysis-20161031-Kak/161104_230549/0000/output_1.root'
         # signal
         # '/store/group/phys_exotica/EmergingJets/EmergingJets_ModelA_TuneCUETP8M1_13TeV_pythia8Mod/AODSIM/150717_090102/0000/aodsim_1.root'
         # QCD MC 74X
         # '/store/mc/RunIISpring15DR74/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/10198812-0816-E511-A2B5-AC853D9DAC1D.root'
-        #'/store/mc/RunIISpring15DR74/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/025B6100-A217-E511-AF6F-0002C92DB46C.root'
+        # '/store/mc/RunIISpring15DR74/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/025B6100-A217-E511-AF6F-0002C92DB46C.root'
         # data skim
         # '/store/group/phys_exotica/EmergingJets/DataSkim-20160302-v0/Run2015D/JetHT/DataSkim-20160302/160303_061653/0000/output_1.root'
         # wjet

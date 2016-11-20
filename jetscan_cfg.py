@@ -43,7 +43,8 @@ print options.steps
 
 from EmergingJetAnalysis.Configuration.emjetTools import *
 
-process = cms.Process('HAHAHA')
+process = cms.Process('TEST')
+#process = cms.Process('HAHA')
 if 'skim' in options.steps and len(options.steps)==1:
     # If only running skim, add AOD/AODSIM and jetFilter/wJetFilter to output
     process.setName('SKIM')
@@ -107,27 +108,75 @@ if 'analyze' in options.steps:
 ########################################
 # Testing step
 ########################################
-testingStep = cms.Sequence()
-testingStep = addTesting(process, options.data, options.sample)
+# testingStep = cms.Sequence()
+# testingStep = addTesting(process, options.data, options.sample)
 
-process.p = cms.Path( skimStep * testingStep * analyzeStep )
+# process.p = cms.Path( skimStep * testingStep * analyzeStep )
 
-if 'skim' in options.steps and len(options.steps)==1:
-    # If only running skim, add AOD/AODSIM and jetFilter/wJetFilter to output
-    print ''
-    print '####################'
-    print 'Adding EDM output'
-    print '####################'
-    print ''
-    addEdmOutput(process, options.data, options.sample)
-else:
-    # Otherwise only save EDM output of jetFilter and wJetFilter
-    process.out = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string('output.root'),
-        outputCommands = cms.untracked.vstring('drop *'),
+# if 'skim' in options.steps and len(options.steps)==1:
+#     # If only running skim, add AOD/AODSIM and jetFilter/wJetFilter to output
+#     print ''
+#     print '####################'
+#     print 'Adding EDM output'
+#     print '####################'
+#     print ''
+#     addEdmOutput(process, options.data, options.sample)
+# else:
+#     # Otherwise only save EDM output of jetFilter and wJetFilter
+#     process.out = cms.OutputModule("PoolOutputModule",
+#         fileName = cms.untracked.string('output.root'),
+#         outputCommands = cms.untracked.vstring('drop *'),
+#     )
+#     if options.sample=='wjet' : process.out.outputCommands.extend(cms.untracked.vstring('keep *_wJetFilter_*_*',))
+#     else                      : process.out.outputCommands.extend(cms.untracked.vstring('keep *_jetFilter_*_*',))
+#     process.out.outputCommands.extend(cms.untracked.vstring('keep *_emJetAnalyzer_*_*',))
+
+########################################
+# Scanning step
+########################################
+scanningStep = cms.Sequence()
+scanningStep = addTesting(process, options.data, options.sample)
+
+jetFilter = cms.EDFilter("JetFilter",
+    srcJets = cms.InputTag("ak4PFJetsCHS"),
+    # srcJets = cms.InputTag("patJets"),
+    # additionalCut = cms.string(""),
+    additionalCut = cms.string("abs(eta) < 2.5 && pt > 50.0"),
+    jetCuts = cms.VPSet(
+        cms.PSet(
+            minPt = cms.double(0.0),
+            maxEta = cms.double(999.0),
+            stringCut = cms.string(""),
+            ),
+        cms.PSet(
+            minPt = cms.double(0.0),
+            maxEta = cms.double(999.0),
+            stringCut = cms.string(""),
+            ),
+        cms.PSet(
+            minPt = cms.double(0.0),
+            maxEta = cms.double(999.0),
+            stringCut = cms.string(""),
+            ),
+        cms.PSet(
+            minPt = cms.double(0.0),
+            maxEta = cms.double(999.0),
+            stringCut = cms.string(""),
+            ),
     )
-    if options.sample=='wjet' : process.out.outputCommands.extend(cms.untracked.vstring('keep *_wJetFilter_*_*',))
-    else                      : process.out.outputCommands.extend(cms.untracked.vstring('keep *_jetFilter_*_*',))
+)
+analyzeStep.replace(process.jetFilter, jetFilter)
+
+process.p = cms.Path( skimStep * scanningStep * analyzeStep )
+
+print ''
+print '####################'
+print 'Adding EDM output'
+print '####################'
+print ''
+addEdmOutput(process, options.data, options.sample)
+process.out.outputCommands.extend(cms.untracked.vstring('keep *_emJetAnalyzer_*_*',))
+process.out.fileName = cms.untracked.string('jetscan.root')
 
 ########################################
 # Generic configuration
@@ -155,8 +204,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.source = cms.Source("PoolSource",
     # eventsToProcess = cms.untracked.VEventRange("1:36:3523-1:36:3523"),
     fileNames = cms.untracked.vstring(
-	'file:/home/kakw/CMSSW_7_6_3/src/EmergingJetAnalysis/mc/2016-09-12-HT2000.root'
         # signal
+	'file:/home/kakw/EmJetAnly/mc/2016-09-11.root'
         # '/store/group/phys_exotica/EmergingJets/EmergingJets_ModelA_TuneCUETP8M1_13TeV_pythia8Mod/AODSIM/150717_090102/0000/aodsim_1.root'
         # QCD MC 74X
         # '/store/mc/RunIISpring15DR74/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/10198812-0816-E511-A2B5-AC853D9DAC1D.root'

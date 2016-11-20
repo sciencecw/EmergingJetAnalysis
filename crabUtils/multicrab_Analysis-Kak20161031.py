@@ -2,8 +2,9 @@
 MC=0
 DATA=1
 
-jobname = 'Analysis-20161031-Kak'        # Jobname
-psetname = 'Configuration/test/test_cfg.py'      # Path to pset
+jobname = 'Analysis-20161119-Kak'        # Jobname
+#psetname = 'Configuration/test/test_cfg.py'      # Path to pset
+psetname = 'jetscan_cfg.py'      # Path to pset
 postfix = ''                # Postfix to job, increment for each major version
 dryrun = 0
 
@@ -15,15 +16,15 @@ datasets = [
     #dataset( "ModelA"                , "/EmergingJets_ModelA_TuneCUETP8M1_13TeV_pythia8Mod/yoshin-AODSIM-69070e02f00a6fbca8a74a9d93177037/USER"                        , MC   , 1    , 10000000 , splitting='FileBased'           , priority=99 , label='signal'   , inputDBS='phys03' ) ,
     #dataset( "ModelB"                , "/EmergingJets_ModelB_TuneCUETP8M1_13TeV_pythia8Mod/yoshin-AODSIM-69070e02f00a6fbca8a74a9d93177037/USER"                        , MC   , 1    , 10000000 , splitting='FileBased'           , priority=99 , label='signal'   , inputDBS='phys03' ) ,
     #dataset( "QCD_HT500to700"        , "/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM"                    , MC   , 1    , 100      , splitting='FileBased'           , priority=10 , label='signal' ) ,
-    dataset( "QCD_HT700to1000"       , "/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM"                   , MC   , 1    , 20     , splitting='FileBased'           , priority=15 , label='signal' ) ,
-    dataset( "QCD_HT1000to1500"      , "/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/AODSIM"                  , MC   , 1    , 10      , splitting='FileBased'           , priority=30 , label='signal' ) ,
-    dataset( "QCD_HT1500to2000"      , "/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM"                  , MC   , 1    , 10      , splitting='FileBased'           , priority=28 , label='signal' ) ,
-    dataset( "QCD_HT2000toInf"       , "/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM"                   , MC   , 1    , 10      , splitting='FileBased'           , priority=25 , label='signal' ) ,
+    dataset( "QCD_HT700to1000"       , "/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM"                   , MC   , 1    , 20     , splitting='FileBased'           , priority=5 , label='signal' ) ,
+    dataset( "QCD_HT1000to1500"      , "/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/AODSIM"                  , MC   , 1    , 10      , splitting='FileBased'           , priority=5 , label='signal' ) ,
+#    dataset( "QCD_HT1500to2000"      , "/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM"                  , MC   , 1    , 10      , splitting='FileBased'           , priority=28 , label='signal' ) ,
+#    dataset( "QCD_HT2000toInf"       , "/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM"                   , MC   , 1    , 10      , splitting='FileBased'           , priority=25 , label='signal' ) ,
     #dataset( "QCD_HT500to700_76X"    , "/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM"   , MC   , 1    , 10      , splitting='FileBased'           , priority=10 , label='signal' ) ,
-    dataset( "QCD_HT700to1000_76X"   , "/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM"  , MC   , 1    , 20     , splitting='FileBased'           , priority=15 , label='signal' ) ,
-    dataset( "QCD_HT1000to1500_76X"  , "/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM" , MC   , 1    , 10      , splitting='FileBased'           , priority=30 , label='signal' ) ,
-    dataset( "QCD_HT1500to2000_76X"  , "/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM" , MC   , 1    , 10      , splitting='FileBased'           , priority=28 , label='signal' ) ,
-    dataset( "QCD_HT2000toInf_76X"   , "/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM"  , MC   , 1    , 10      , splitting='FileBased'           , priority=25 , label='signal' ) ,
+    dataset( "QCD_HT700to1000_76X"   , "/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM"  , MC   , 1    , 20     , splitting='FileBased'           , priority=5 , label='signal' ) ,
+    dataset( "QCD_HT1000to1500_76X"  , "/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM" , MC   , 1    , 10      , splitting='FileBased'           , priority=5 , label='signal' ) ,
+#    dataset( "QCD_HT1500to2000_76X"  , "/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM" , MC   , 1    , 10      , splitting='FileBased'           , priority=28 , label='signal' ) ,
+#    dataset( "QCD_HT2000toInf_76X"   , "/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIIFall15DR76-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/AODSIM"  , MC   , 1    , 10      , splitting='FileBased'           , priority=25 , label='signal' ) ,
     #dataset( "DataSkim_Run2015-PRv3" , "/JetHT/yoshin-DataSkim-20160302-80c51f15cd036b2256e94c207509265d/USER"                                                         , DATA , 1000 , 20000    , splitting='EventAwareLumiBased' , priority=35 , label='signal'   , inputDBS='phys03' ) ,
 ]
 
