@@ -77,6 +77,7 @@ class JetFilter : public edm::EDFilter {
     // inputs
     ////////////////////////////////////////
     edm::EDGetTokenT< reco::PFJetCollection > jetCollectionToken_;
+    bool doFilter_; // If false, pass all events, and select all jets passing additionalCut
     std::vector<double> minPts_;  // minPts_[i] corresponds to the i-th minimum pt-cut
     std::vector<double> maxEtas_; // maxEtas_[i] corresponds to the i-th max eta-cut
     std::vector<StringCutObjectSelector<reco::PFJet> > stringCutSelectors_; // String cuts for the i-th jet
@@ -107,6 +108,7 @@ class JetFilter : public edm::EDFilter {
 // constructors and destructor
 //
 JetFilter::JetFilter(const edm::ParameterSet& iConfig):
+  doFilter_(iConfig.getParameter<bool>("doFilter")),
   additionalCutSelector_( StringCutObjectSelector<reco::PFJet>(iConfig.getParameter<std::string>("additionalCut")) )
 {
   LogDebug("JetFilter") << "Construcing JetFilter";
@@ -168,24 +170,26 @@ JetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("JetFilter") << "Iterating over jets";
   int nJetsPassing = 0;
   int jetIndex = 0;
-  for (auto it = jetCollection->begin(); it != jetCollection->end(); it++) {
-    auto jet = *it;
-    if (nJetsPassing < nCuts_) {
-      if (fabs(jet.eta()) < maxEtas_[nJetsPassing] && jet.pt() > minPts_[nJetsPassing]) {
-        bool passStringCut = stringCutSelectors_[nJetsPassing](jet);
-        if (passStringCut) {
-          selectedJets_->push_back(jet);
-          selectedJetsIndex_.push_back(jetIndex);
-          nJetsPassing++;
+  if (doFilter_) {
+    for (auto it = jetCollection->begin(); it != jetCollection->end(); it++) {
+      auto jet = *it;
+      if (nJetsPassing < nCuts_) {
+        if (fabs(jet.eta()) < maxEtas_[nJetsPassing] && jet.pt() > minPts_[nJetsPassing]) {
+          bool passStringCut = stringCutSelectors_[nJetsPassing](jet);
+          if (passStringCut) {
+            selectedJets_->push_back(jet);
+            selectedJetsIndex_.push_back(jetIndex);
+            nJetsPassing++;
+          }
         }
+      } else if (nJetsPassing > 3) {
+        eventPassed = true;
+        break;
       }
-    } else if (nJetsPassing > 3) {
-      eventPassed = true;
-      break;
+      jetIndex++;
     }
-    jetIndex++;
   }
-
+  else eventPassed = true;
   if (eventPassed) {
     int jetIndex = 0;
     for (auto it = jetCollection->begin(); it != jetCollection->end(); it++) {

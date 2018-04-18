@@ -1,3 +1,4 @@
+import copy # For load_dataset
 
 # Specify datasets by a shorthand alias, full name, units per job and total units (EventAwareLumi/Event for MC, Lumi for data)
 # (alias, Data.inputDataset, Data.unitsPerJob, Data.totalUnits, isData, JobType.priority, sampleType)
@@ -5,7 +6,7 @@ class dataset:
     """Simple class to hold information relevant to a given dataset for CRAB jobs.
     label is unused member that can be used to hold extra information specific to each MultiCRAB config.
     E.g. dataset("WJetsToLNuInclusive", "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM", MC, 1000, 1000000, 10, 'EventBased', 'WJet')"""
-    def __init__(self, alias, fullpath, isData, unitsPerJob=1, totalUnits=1, splitting='FileBased', priority=1, inputDBS='global', label=''):
+    def __init__(self, alias, fullpath, isData, unitsPerJob=1, totalUnits=1, splitting='FileBased', priority=1, inputDBS='global', label='', doHLT=1, doJetFilter=0):
         self.alias       = alias
         self.fullpath    = fullpath
         self.isData      = isData
@@ -15,6 +16,8 @@ class dataset:
         self.priority    = priority
         self.inputDBS    = inputDBS
         self.label       = label
+        self.doHLT       = doHLT
+        self.doJetFilter = doJetFilter
 
 # datasets = [
 # dataset( "test" , "/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/AODSIM" , 1 , 1 ) ,
@@ -57,3 +60,24 @@ class dataset:
 # dataset( "ModelB"       , "/EmergingJets_ModelB_TuneCUETP8M1_13TeV_pythia8Mod/yoshin-AODSIM-69070e02f00a6fbca8a74a9d93177037/USER" , 100 , 10000000 , MC   , 20 , 'signal' ) ,
 # dataset( "WJetSkimMuon" , "/SingleMuon/yoshin-WJetSkim-ede3f21fae18a825b193df32c86b780e/USER"                                      , 10 , 1000000 , DATA , 20 , 'wjet'   ) ,
 # ]
+
+def load_datasets(dataset_file, dataset_template):
+    """Takes a text file containing a list of datasets and a template dataset object.
+    Returns a list of dataset objects identical to the template object, except with modified alias and fullpath fields."""
+    with open(dataset_file, 'r') as ifile:
+        i = 0
+        dataset_list = []
+        for line in ifile:
+            if line[0]=='#': continue # Skip comment lines
+            fullpath = line.rstrip()
+            splitstring = fullpath.split('_')
+            alias = ('_').join(splitstring[1:13])
+            dataset_entry = copy.copy(dataset_template)
+            dataset_entry.alias    = alias
+            dataset_entry.fullpath = fullpath
+            dataset_list.append(dataset_entry)
+            # i += 1
+            # if i>10: break
+            # print alias
+        return dataset_list
+

@@ -1,24 +1,38 @@
 """Helper functions to consolidate different CMSSW configs"""
 import FWCore.ParameterSet.Config as cms
 
-def addSkim(process, isData=False):
-    print "Adding Skim step."
-    print "triggerSelection should be verified for new datasets."
-    process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
-        triggerConditions = cms.vstring(
-            # Data: Run2015*
-            'HLT_PFHT800_v*',
-            # MC: RunIISpring15DR74
-            'HLT_PFHT900_v*',
-        ),
-        hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-        l1tResults = cms.InputTag( "gtDigis" ),
-        l1tIgnoreMask = cms.bool( False ),
-        l1techIgnorePrescales = cms.bool( False ),
-        daqPartitions = cms.uint32( 1 ),
-        throw = cms.bool( False )
-    )
+def addSkim(process, isData=False, doJetFilter=True, doHLT=False):
+    if doHLT:
+        print "Applying HLT trigger selection"
+        print "triggerSelection should be verified for new datasets."
+        process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
+            triggerConditions = cms.vstring(
+                # EXO-16-003
+                'HLT_HT250_DisplacedDijet40_DisplacedTrack_v*',
+                'HLT_HT350_DisplacedDijet40_DisplacedTrack_v*',
+                'HLT_HT400_DisplacedDijet40_Inclusive_v*',
+                'HLT_HT500_DisplacedDijet40_Inclusive_v*',
+                # Data: Run2015*
+                # 'HLT_PFHT475_v*',
+                # 'HLT_PFHT600_v*',
+                # 'HLT_PFHT750_4Jet_v*',
+                # 'HLT_PFHT800_v*',
+                # MC: RunIISpring15DR74
+                #'HLT_PFHT900_v*',
+                # Signal region
+                'HLT_PFHT800_v*',
+                'HLT_PFHT900_v*',
+            ),
+            hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+            l1tResults = cms.InputTag( "" ),
+            l1tIgnoreMask = cms.bool( False ),
+            l1techIgnorePrescales = cms.bool( False ),
+            daqPartitions = cms.uint32( 1 ),
+            throw = cms.bool( False )
+        )
+    doFilter = True if doJetFilter else False # doFilter must be boolean type
     process.jetFilter = cms.EDFilter("JetFilter",
+        doFilter = cms.bool( doFilter ),
         srcJets = cms.InputTag("ak4PFJetsCHS"),
         # srcJets = cms.InputTag("patJets"),
         # additionalCut = cms.string(""),
@@ -49,10 +63,10 @@ def addSkim(process, isData=False):
     process.eventCountPreTrigger = cms.EDAnalyzer('EventCounter')
     process.eventCountPreFilter = cms.EDAnalyzer('EventCounter')
     process.eventCountPostFilter = cms.EDAnalyzer('EventCounter')
-    if isData:
+    if doHLT: # Add triggerSelection
         return cms.Sequence(process.eventCountPreTrigger * process.triggerSelection * process.eventCountPreFilter * process.jetFilter * process.eventCountPostFilter)
-    else:
-        return cms.Sequence(process.eventCountPreTrigger * cms.ignore(process.triggerSelection) * process.eventCountPreFilter * process.jetFilter * process.eventCountPostFilter)
+    else: # Ignore triggerSelection
+        return cms.Sequence(process.eventCountPreTrigger * process.eventCountPreFilter * process.jetFilter * process.eventCountPostFilter)
 
 def addWJetSkim(process, isData=False):
     print "Adding WJet Skim step."
@@ -101,8 +115,8 @@ def addWJetSkim(process, isData=False):
         maxDeltaPhi = cms.double(0.4), # Doesn't do anything
         minPtSelectedJet = cms.double(20.0),
         maxPtAdditionalJets = cms.double(20.0), # Doesn't do anything
-        # electronID = cms.string('cutBasedElectronID-Spring15-25ns-V1-standalone-loose'),
-        electronID = cms.string('cutBasedElectronID-CSA14-50ns-V1-standalone-medium'),
+        electronID = cms.string('cutBasedElectronID-Spring15-25ns-V1-standalone-medium'),
+        # electronID = cms.string('cutBasedElectronID-CSA14-50ns-V1-standalone-medium'),
     )
     if isData: process.wJetFilter.isData = cms.bool(True)
     process.eventCountPreTrigger = cms.EDAnalyzer('EventCounter')
@@ -141,9 +155,37 @@ def addAnalyze(process, isData=False, sample=''):
         isData = cms.untracked.bool(False),
         srcHtMht = cms.InputTag("offlinePFHT"),
     )
-    if isData: process.emergingJetAnalyzer.isData = cms.untracked.bool( True )
+    if isData: process.emergingJetAnalyzer.isData = cms.bool( True )
     if sample=='wjet': process.emergingJetAnalyzer.srcJets = cms.InputTag("wJetFilter")
-    return cms.Sequence(process.emergingJetAnalyzer)
+    # Load jet correctors
+    process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+    process.emJetAnalyzer = cms.EDFilter('EmJetAnalyzer',
+        TrackAssociatorParameterBlock,
+        srcJets = cms.InputTag("jetFilter", "selectedJets"),
+        isData = cms.bool(False),
+        vertexreco = cms.PSet(
+            primcut = cms.double( 3.0 ),
+            seccut = cms.double( 5.0 ),
+            smoothing = cms.bool( True ),
+            # weightthreshold = cms.double( 0.0010 ),
+            minweight = cms.double( 0.5 ),
+            finder = cms.string( "avr" )
+        ),
+        hlTriggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+        jets = cms.untracked.InputTag("ak4CaloJets"),
+        associatorVTX = cms.untracked.InputTag("ak4JTAatVX"),
+        associatorCALO = cms.untracked.InputTag("ak4JTAatCAL"),
+        scanMode = cms.bool(False),
+        scanRandomJet = cms.bool(False),
+        debug = cms.untracked.bool(False),
+        saveTracks = cms.bool(True),
+    )
+    if isData: process.emJetAnalyzer.isData = cms.bool( True )
+    if sample=='wjet'     : process.emJetAnalyzer.srcJets = cms.InputTag("wJetFilter")
+    if sample=='recotest' : process.emJetAnalyzer.srcJets = cms.InputTag("ak4PFJetsCHS")
+
+    # return cms.Sequence(process.emergingJetAnalyzer+process.emJetAnalyzer)
+    return cms.Sequence(process.emJetAnalyzer)
 
 def addEdmOutput(process, isData=False, sample=''):
     from Configuration.EventContent.EventContent_cff import AODSIMEventContent
@@ -181,3 +223,26 @@ def addPFHT(process, isData=False, sample=''):
         pfCandidatesLabel = cms.InputTag( "particleFlow" ), # Changed from "hltParticleFlow"
         excludePFMuons = cms.bool( False )
     )
+
+def addTesting(process, isData=False, sample=''):
+    # Jet Track Association
+    process.load('RecoJets.JetAssociationProducers.ak4JTA_cff')
+    process.emJetAnalyzer.jets = cms.untracked.InputTag('ak4CaloJets')
+    process.emJetAnalyzer.associatorVTX = cms.untracked.InputTag("ak4JTAatVX")
+    process.emJetAnalyzer.associatorCALO = cms.untracked.InputTag("ak4JTAatCAL")
+    process.ak4JTAatVX = cms.EDProducer("JetTracksAssociatorAtVertex",
+        tracks = cms.InputTag("generalTracks"),
+        coneSize = cms.double(0.4),
+        useAssigned = cms.bool(False),
+        pvSrc = cms.InputTag("offlinePrimaryVertices"),
+        jets = cms.InputTag("ak4CaloJets")
+    )
+    process.ak4JTAatCAL = cms.EDProducer("JetTracksAssociatorAtCaloFace",
+        tracks = cms.InputTag("generalTracks"),
+        extrapolations = cms.InputTag("trackExtrapolator"),
+        trackQuality = cms.string("goodIterative"),
+        coneSize = cms.double(0.4),
+        useAssigned = cms.bool(False),
+        jets = cms.InputTag("ak4CaloJets")
+    )
+    return cms.Sequence(process.ak4JTAatVX*process.ak4JTAatCAL)

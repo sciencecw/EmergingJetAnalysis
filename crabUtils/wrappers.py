@@ -3,10 +3,21 @@ from CRABAPI.RawCommand import crabCommand
 from CRABClient.ClientExceptions import ClientException
 from httplib import HTTPException
 from multiprocessing import Process, Queue
+import os
 
 def submit(config, q):
     try:
-        res = crabCommand('submit', config = config)
+        res = crabCommand('submit', '--proxy=/tmp/x509up_u%d' % os.getuid(), config = config)
+        q.put(res)
+    except HTTPException as hte:
+        print "Failed submitting task: %s" % (hte.headers)
+    except ClientException as cle:
+        print "Failed submitting task: %s" % (cle)
+
+def submit_dryrun(config, q):
+    print 'submit_dryrun'
+    try:
+        res = crabCommand('submit', '--proxy=/tmp/x509up_u%d' % os.getuid(), '--dryrun', '--skip-estimates', config = config)
         q.put(res)
     except HTTPException as hte:
         print "Failed submitting task: %s" % (hte.headers)
@@ -25,13 +36,3 @@ def submit_newthread(config, dryrun=False):
     p.join()
     res = q.get()
     return res
-
-def submit_dryrun(config, q):
-    print 'submit_dryrun'
-    try:
-        res = crabCommand('submit', '--dryrun', '--skip-estimates', config = config)
-        q.put(res)
-    except HTTPException as hte:
-        print "Failed submitting task: %s" % (hte.headers)
-    except ClientException as cle:
-        print "Failed submitting task: %s" % (cle)

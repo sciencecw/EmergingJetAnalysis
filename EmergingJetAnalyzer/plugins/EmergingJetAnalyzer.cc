@@ -34,7 +34,6 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
@@ -175,6 +174,25 @@ EmergingJetAnalyzer::EmergingJetAnalyzer(const edm::ParameterSet& iConfig) :
 
   jetCollectionToken_ = consumes< reco::PFJetCollection > (iConfig.getParameter<edm::InputTag>("srcJets"));
   HtMhtCollectionToken_ = consumes< reco::METCollection > (iConfig.getParameter<edm::InputTag>("srcHtMht"));
+
+  // Register inputs
+  consumes<reco::BeamSpot> (edm::InputTag("offlineBeamSpot"));
+  consumes<reco::TrackCollection> (edm::InputTag("generalTracks"));
+  consumes<reco::TrackCollection> (edm::InputTag("displacedStandAloneMuons"));
+  consumes<reco::PFMETCollection> (edm::InputTag("pfMet"));
+  consumes<reco::VertexCollection> (edm::InputTag("offlinePrimaryVerticesWithBS"));
+  consumes<reco::VertexCollection> (edm::InputTag("inclusiveSecondaryVertices"));
+
+  consumes<DTRecSegment4DCollection> (edm::InputTag("dt4DSegments"));
+  consumes<CSCSegmentCollection> (edm::InputTag("cscSegments"));
+  consumes<RPCRecHitCollection> (edm::InputTag("rpcRecHits"));
+
+  if (!isData_) { // :MCONLY:
+    consumes<std::vector<PileupSummaryInfo> > (edm::InputTag("addPileupInfo"));
+    consumes<std::vector<reco::GenMET> > (edm::InputTag("genMetTrue"));
+    consumes<reco::GenParticleCollection> (edm::InputTag("genParticles"));
+    consumes<reco::GenJetCollection> (edm::InputTag("ak4GenJets"));
+  }
 
   // Register inputs
   consumes<reco::BeamSpot> (edm::InputTag("offlineBeamSpot"));
